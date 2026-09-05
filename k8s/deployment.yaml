@@ -22,6 +22,15 @@ spec:
         app: hotstar-clone
 
     spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app: hotstar-clone
       containers:
         - name: hotstar-clone
           image: 892334471137.dkr.ecr.ap-south-1.amazonaws.com/hotstar-clone:IMAGE_TAG
