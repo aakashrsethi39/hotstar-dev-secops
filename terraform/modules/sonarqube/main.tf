@@ -3,34 +3,46 @@ resource "aws_security_group" "sonarqube" {
   description = "Security group for SonarQube"
   vpc_id      = var.vpc_id
 
-  # SonarQube
-  ingress {
-    description = "SonarQube"
-    from_port   = 9000
-    to_port     = 9000
-    protocol    = "tcp"
-    cidr_blocks = [var.ssh_allowed_cidr]
-  }
-
-  # SSH
-  ingress {
-    description = "SSH"
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = [var.ssh_allowed_cidr]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
   tags = {
     Name = "hotstar-sonarqube-sg"
   }
+}
+
+
+# SSH access to SonarQube
+resource "aws_vpc_security_group_ingress_rule" "ssh" {
+  security_group_id = aws_security_group.sonarqube.id
+
+  cidr_ipv4   = var.ssh_allowed_cidr
+  from_port   = 22
+  to_port     = 22
+  ip_protocol = "tcp"
+
+  description = "SSH"
+}
+
+
+# Jenkins -> SonarQube
+resource "aws_vpc_security_group_ingress_rule" "jenkins_to_sonarqube" {
+  security_group_id            = aws_security_group.sonarqube.id
+  referenced_security_group_id = var.jenkins_security_group_id
+
+  from_port   = 9000
+  to_port     = 9000
+  ip_protocol = "tcp"
+
+  description = "Allow Jenkins to access SonarQube"
+}
+
+
+# SonarQube outbound access
+resource "aws_vpc_security_group_egress_rule" "all" {
+  security_group_id = aws_security_group.sonarqube.id
+
+  cidr_ipv4   = "0.0.0.0/0"
+  ip_protocol = "-1"
+
+  description = "Allow all outbound traffic"
 }
 
 
@@ -53,3 +65,4 @@ resource "aws_instance" "sonarqube" {
     Name = "hotstar-sonarqube"
   }
 }
+

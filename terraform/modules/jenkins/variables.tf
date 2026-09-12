@@ -21,3 +21,8 @@ variable "instance_profile_name" {
 variable "ssh_allowed_cidr" {
   type = string
 }
+
+variable "public_subnet_ids" {
+  description = "Public subnet IDs for Jenkins ALB"
+  type        = list(string)
+}

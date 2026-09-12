@@ -1,0 +1,82 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hotstar-grafana-dashboard
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  hotstar-dashboard.json: |
+    {
+      "title": "Hotstar EKS DevSecOps Monitoring",
+      "uid": "hotstar-devsecops",
+      "schemaVersion": 39,
+      "version": 1,
+      "refresh": "10s",
+      "time": {
+        "from": "now-30m",
+        "to": "now"
+      },
+      "panels": [
+        {
+          "id": 1,
+          "title": "Hotstar Running Pods",
+          "type": "stat",
+          "gridPos": {"x":0,"y":0,"w":6,"h":5},
+          "targets": [
+            {
+              "expr": "count(kube_pod_status_phase{namespace=\"default\",pod=~\"hotstar-clone-.*\",phase=\"Running\"})",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "title": "HPA Desired Replicas",
+          "type": "stat",
+          "gridPos": {"x":6,"y":0,"w":6,"h":5},
+          "targets": [
+            {
+              "expr": "kube_horizontalpodautoscaler_status_desired_replicas{namespace=\"default\",horizontalpodautoscaler=\"hotstar-clone\"}",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "title": "HPA Current Replicas",
+          "type": "stat",
+          "gridPos": {"x":12,"y":0,"w":6,"h":5},
+          "targets": [
+            {
+              "expr": "kube_horizontalpodautoscaler_status_current_replicas{namespace=\"default\",horizontalpodautoscaler=\"hotstar-clone\"}",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "title": "Hotstar CPU Usage",
+          "type": "timeseries",
+          "gridPos": {"x":0,"y":5,"w":12,"h":8},
+          "targets": [
+            {
+              "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"default\",pod=~\"hotstar-clone-.*\",container!=\"POD\",container!=\"\"}[5m]))",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 5,
+          "title": "Hotstar Memory Usage",
+          "type": "timeseries",
+          "gridPos": {"x":12,"y":5,"w":12,"h":8},
+          "targets": [
+            {
+              "expr": "sum(container_memory_working_set_bytes{namespace=\"default\",pod=~\"hotstar-clone-.*\",container!=\"POD\",container!=\"\"}) / 1024 / 1024",
+              "refId": "A"
+            }
+          ]
+        }
+      ]
+    }

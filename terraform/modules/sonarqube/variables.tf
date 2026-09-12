@@ -17,3 +17,8 @@ variable "key_name" {
 variable "ssh_allowed_cidr" {
   type = string
 }
+
+variable "jenkins_security_group_id" {
+  description = "Security group ID of Jenkins"
+  type        = string
+}
