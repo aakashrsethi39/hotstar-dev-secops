@@ -1,0 +1,218 @@
+
+grafana:
+  grafana.ini:
+    smtp:
+      enabled: true
+      host: smtp.gmail.com:587
+      user: aakashrsethi39@gmail.com
+      from_address: aakashrsethi39@gmail.com
+      from_name: Hotstar Grafana
+      skip_verify: false
+
+  envValueFrom:
+    GF_SMTP_USER:
+      secretKeyRef:
+        name: grafana-smtp
+        key: user
+    GF_SMTP_PASSWORD:
+      secretKeyRef:
+        name: grafana-smtp
+        key: password
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            topologyKey: kubernetes.io/hostname
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/name: grafana
+
+  alerting:
+    rules.yaml:
+      apiVersion: 1
+      groups:
+        - orgId: 1
+          name: Hotstar Monitoring
+          folder: Hotstar Monitoring
+          interval: 1m
+          rules:
+
+            - uid: hotstar-high-cpu
+              title: Hotstar High CPU
+              condition: C
+              for: 5m
+              labels:
+                severity: warning
+              annotations:
+                summary: Hotstar pods have high CPU usage
+              data:
+                - refId: A
+                  relativeTimeRange:
+                    from: 300
+                    to: 0
+                  datasourceUid: prometheus
+                  model:
+                    expr: sum(rate(container_cpu_usage_seconds_total{namespace="default",pod=~"hotstar-clone-.*",container!="POD",container!=""}[5m]))
+                    refId: A
+
+                - refId: B
+                  relativeTimeRange:
+                    from: 300
+                    to: 0
+                  datasourceUid: __expr__
+                  model:
+                    type: reduce
+                    expression: A
+                    reducer: last
+                    refId: B
+
+                - refId: C
+                  relativeTimeRange:
+                    from: 0
+                    to: 0
+                  datasourceUid: __expr__
+                  model:
+                    type: threshold
+                    expression: B
+                    refId: C
+                    conditions:
+                      - type: query
+                        query:
+                          params:
+                            - B
+                        reducer:
+                          type: last
+                          params: []
+                        evaluator:
+                          type: gt
+                          params:
+                            - 0.7
+                        operator:
+                          type: and
+
+            - uid: hotstar-pod-failure
+              title: Hotstar Pod Failure
+              condition: C
+              for: 5m
+              labels:
+                severity: critical
+              annotations:
+                summary: Hotstar has fewer than 2 running pods
+              data:
+                - refId: A
+                  relativeTimeRange:
+                    from: 300
+                    to: 0
+                  datasourceUid: prometheus
+                  model:
+                    expr: count(kube_pod_status_phase{namespace="default",pod=~"hotstar-clone-.*",phase="Running"})
+                    refId: A
+
+                - refId: B
+                  relativeTimeRange:
+                    from: 300
+                    to: 0
+                  datasourceUid: __expr__
+                  model:
+                    type: reduce
+                    expression: A
+                    reducer: last
+                    refId: B
+
+                - refId: C
+                  relativeTimeRange:
+                    from: 0
+                    to: 0
+                  datasourceUid: __expr__
+                  model:
+                    type: threshold
+                    expression: B
+                    refId: C
+                    conditions:
+                      - type: query
+                        query:
+                          params:
+                            - B
+                        reducer:
+                          type: last
+                          params: []
+                        evaluator:
+                          type: lt
+                          params:
+                            - 2
+                        operator:
+                          type: and
+
+            - uid: hotstar-hpa-maximum
+              title: Hotstar HPA Maximum
+              condition: C
+              for: 5m
+              labels:
+                severity: warning
+              annotations:
+                summary: Hotstar HPA has reached maximum replicas
+              data:
+                - refId: A
+                  relativeTimeRange:
+                    from: 300
+                    to: 0
+                  datasourceUid: prometheus
+                  model:
+                    expr: kube_horizontalpodautoscaler_status_current_replicas{namespace="default",horizontalpodautoscaler="hotstar-clone"}
+                    refId: A
+
+                - refId: B
+                  relativeTimeRange:
+                    from: 300
+                    to: 0
+                  datasourceUid: __expr__
+                  model:
+                    type: reduce
+                    expression: A
+                    reducer: last
+                    refId: B
+
+                - refId: C
+                  relativeTimeRange:
+                    from: 0
+                    to: 0
+                  datasourceUid: __expr__
+                  model:
+                    type: threshold
+                    expression: B
+                    refId: C
+                    conditions:
+                      - type: query
+                        query:
+                          params:
+                            - B
+                        reducer:
+                          type: last
+                          params: []
+                        evaluator:
+                          type: gte
+                          params:
+                            - 6
+                        operator:
+                          type: and
+prometheus:
+  prometheusSpec:
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: prometheus
