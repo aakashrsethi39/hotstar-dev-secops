@@ -1,0 +1,100 @@
+apiVersion: monitoring.grafana.com/v1
+kind: GrafanaAlertRule
+metadata:
+  name: hotstar-high-cpu
+  namespace: monitoring
+spec:
+  title: Hotstar High CPU
+  condition: C
+  for: 5m
+  labels:
+    severity: warning
+  annotations:
+    summary: Hotstar pods have high CPU usage
+  data:
+    - refId: A
+      datasourceUid: prometheus
+      model:
+        expr: sum(rate(container_cpu_usage_seconds_total{namespace="default",pod=~"hotstar-clone-.*",container!="POD",container!=""}[5m]))
+        refId: A
+    - refId: B
+      datasourceUid: __expr__
+      model:
+        expression: A
+        type: reduce
+        reducer: last
+        refId: B
+    - refId: C
+      datasourceUid: __expr__
+      model:
+        expression: B > 0.7
+        type: math
+        refId: C
+
+---
+apiVersion: monitoring.grafana.com/v1
+kind: GrafanaAlertRule
+metadata:
+  name: hotstar-pod-failure
+  namespace: monitoring
+spec:
+  title: Hotstar Pod Failure
+  condition: C
+  for: 5m
+  labels:
+    severity: critical
+  annotations:
+    summary: Hotstar has fewer than 2 running pods
+  data:
+    - refId: A
+      datasourceUid: prometheus
+      model:
+        expr: count(kube_pod_status_phase{namespace="default",pod=~"hotstar-clone-.*",phase="Running"})
+        refId: A
+    - refId: B
+      datasourceUid: __expr__
+      model:
+        expression: A
+        type: reduce
+        reducer: last
+        refId: B
+    - refId: C
+      datasourceUid: __expr__
+      model:
+        expression: B < 2
+        type: math
+        refId: C
+
+---
+apiVersion: monitoring.grafana.com/v1
+kind: GrafanaAlertRule
+metadata:
+  name: hotstar-hpa-maximum
+  namespace: monitoring
+spec:
+  title: Hotstar HPA Maximum
+  condition: C
+  for: 5m
+  labels:
+    severity: warning
+  annotations:
+    summary: Hotstar HPA has reached maximum replicas
+  data:
+    - refId: A
+      datasourceUid: prometheus
+      model:
+        expr: kube_horizontalpodautoscaler_status_current_replicas{namespace="default",horizontalpodautoscaler="hotstar-clone"}
+        refId: A
+    - refId: B
+      datasourceUid: __expr__
+      model:
+        expression: A
+        type: reduce
+        reducer: last
+        refId: B
+    - refId: C
+      datasourceUid: __expr__
+      model:
+        expression: B >= 6
+        type: math
+        refId: C
