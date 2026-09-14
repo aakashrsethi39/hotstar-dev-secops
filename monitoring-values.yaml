@@ -37,6 +37,19 @@ grafana:
               matchLabels:
                 app.kubernetes.io/name: grafana
 
+  extraConfigmapMounts:
+    - name: grafana-contactpoints
+      mountPath: /etc/grafana/provisioning/alerting/contactpoints.yaml
+      subPath: contactpoints.yaml
+      configMap: grafana-alerting-provisioning
+      readOnly: true
+
+    - name: grafana-policies
+      mountPath: /etc/grafana/provisioning/alerting/policies.yaml
+      subPath: policies.yaml
+      configMap: grafana-alerting-provisioning
+      readOnly: true
+                
   alerting:
     rules.yaml:
       apiVersion: 1
@@ -50,7 +63,7 @@ grafana:
             - uid: hotstar-high-cpu
               title: Hotstar High CPU
               condition: C
-              for: 5m
+              for: 1m
               labels:
                 severity: warning
               annotations:
@@ -103,7 +116,7 @@ grafana:
             - uid: hotstar-pod-failure
               title: Hotstar Pod Failure
               condition: C
-              for: 5m
+              for: 1m
               labels:
                 severity: critical
               annotations:
@@ -156,7 +169,7 @@ grafana:
             - uid: hotstar-hpa-maximum
               title: Hotstar HPA Maximum
               condition: C
-              for: 5m
+              for: 1m
               labels:
                 severity: warning
               annotations:

@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-alerting-provisioning
+  namespace: monitoring
+data:
+  contactpoints.yaml: |
+    apiVersion: 1
+
+    contactPoints:
+      - orgId: 1
+        name: Hotstar Email Alerts
+        receivers:
+          - uid: hotstar-email
+            type: email
+            settings:
+              addresses: aakashrsethi39@gmail.com
+
+  policies.yaml: |
+    apiVersion: 1
+
+    policies:
+      - orgId: 1
+        receiver: Hotstar Email Alerts
+        group_by:
+          - grafana_folder
+          - alertname
+        group_wait: 30s
+        group_interval: 30s
+        repeat_interval: 4h
+        routes:
+          - receiver: Hotstar Email Alerts
+            object_matchers:
+              - - alertname
+                - =
+                - Hotstar High CPU
+            group_wait: 30s
+            group_interval: 30s
+            repeat_interval: 4h
