@@ -34,7 +34,7 @@ spec:
                     app: hotstar-clone
       containers:
         - name: hotstar-clone
-          image: 892334471137.dkr.ecr.ap-south-1.amazonaws.com/hotstar-clone:f28c9cf
+          image: 892334471137.dkr.ecr.ap-south-1.amazonaws.com/hotstar-clone:9999
 
           ports:
             - containerPort: 8080
