@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: hotstar-clone
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   selector:
     app: hotstar-clone
   ports:
