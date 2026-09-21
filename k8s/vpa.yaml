@@ -9,4 +9,4 @@ spec:
     kind: Deployment
     name: hotstar-clone
   updatePolicy:
-    updateMode: "Off"
+    updateMode: "Auto"
