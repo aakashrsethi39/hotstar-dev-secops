@@ -39,6 +39,8 @@ module "jenkins" {
 
   public_subnet_id = module.vpc.public_subnet_ids[0]
 
+  public_subnet_ids = module.vpc.public_subnet_ids
+
   ami_id = "ami-050c78efa486a0196"
 
   key_name = "hotstar-key"
@@ -65,6 +67,8 @@ module "sonarqube" {
   key_name = "hotstar-key"
 
   ssh_allowed_cidr = "43.243.80.167/32"
+
+  jenkins_security_group_id = module.jenkins.jenkins_security_group_id
 
   depends_on = [
     module.vpc

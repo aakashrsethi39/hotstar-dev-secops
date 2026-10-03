@@ -11,7 +11,7 @@ data:
       "title": "Hotstar EKS DevSecOps Monitoring",
       "uid": "hotstar-devsecops",
       "schemaVersion": 39,
-      "version": 1,
+      "version": 2,
       "refresh": "10s",
       "time": {
         "from": "now-30m",
@@ -79,6 +79,98 @@ data:
             {
               "datasource":{"type":"prometheus","uid":"prometheus"},
               "expr": "sum(container_memory_working_set_bytes{namespace=\"default\",pod=~\"hotstar-clone-.*\",container!=\"POD\",container!=\"\"}) / 1024 / 1024",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 6,
+          "title": "Cluster Autoscaler - Ready Nodes",
+          "type": "stat",
+          "gridPos": {"x":0,"y":13,"w":6,"h":5},
+          "targets": [
+            {
+              "datasource":{"type":"prometheus","uid":"prometheus"},
+              "expr": "cluster_autoscaler_nodes_count{state=\"ready\"}",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 7,
+          "title": "Cluster Autoscaler - Max Nodes",
+          "type": "stat",
+          "gridPos": {"x":6,"y":13,"w":6,"h":5},
+          "targets": [
+            {
+              "datasource":{"type":"prometheus","uid":"prometheus"},
+              "expr": "cluster_autoscaler_max_nodes_count",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 8,
+          "title": "Cluster Autoscaler - Unschedulable Pods",
+          "type": "stat",
+          "gridPos": {"x":12,"y":13,"w":6,"h":5},
+          "targets": [
+            {
+              "datasource":{"type":"prometheus","uid":"prometheus"},
+              "expr": "cluster_autoscaler_unschedulable_pods_count{type=\"unschedulable\"}",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 9,
+          "title": "Cluster Autoscaler - Nodes Scaled Up",
+          "type": "stat",
+          "gridPos": {"x":18,"y":13,"w":6,"h":5},
+          "targets": [
+            {
+              "datasource":{"type":"prometheus","uid":"prometheus"},
+              "expr": "cluster_autoscaler_scaled_up_nodes_total",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 10,
+          "title": "Cluster Autoscaler - Nodes Scaled Down",
+          "type": "stat",
+          "gridPos": {"x":0,"y":18,"w":6,"h":5},
+          "targets": [
+            {
+              "datasource":{"type":"prometheus","uid":"prometheus"},
+              "expr": "sum(cluster_autoscaler_scaled_down_nodes_total)",
+              "refId": "A"
+            }
+          ]
+        },
+        ,
+        {
+          "id": 11,
+          "title": "VPA Objects by Update Mode",
+          "type": "timeseries",
+          "gridPos": {"x":6,"y":18,"w":9,"h":5},
+          "targets": [
+            {
+              "datasource":{"type":"prometheus","uid":"prometheus"},
+              "expr": "sum by (update_mode) (vpa_recommender_vpa_objects_count)",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 12,
+          "title": "VPA Aggregate Container States",
+          "type": "stat",
+          "gridPos": {"x":15,"y":18,"w":9,"h":5},
+          "targets": [
+            {
+              "datasource":{"type":"prometheus","uid":"prometheus"},
+              "expr": "vpa_recommender_aggregate_container_states_count",
               "refId": "A"
             }
           ]
