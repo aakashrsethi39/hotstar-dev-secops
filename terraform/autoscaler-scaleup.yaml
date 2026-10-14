@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: autoscaler-scaleup
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: autoscaler-scaleup
+  template:
+    metadata:
+      labels:
+        app: autoscaler-scaleup
+    spec:
+      containers:
+        - name: nginx
+          image: nginx
+          resources:
+            requests:
+              cpu: 100m
+              memory: 350Mi

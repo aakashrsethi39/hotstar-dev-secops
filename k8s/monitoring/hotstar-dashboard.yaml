@@ -148,7 +148,6 @@ data:
             }
           ]
         },
-        ,
         {
           "id": 11,
           "title": "VPA Objects by Update Mode",

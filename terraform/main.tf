@@ -21,7 +21,7 @@ module "eks" {
   source = "./modules/eks"
 
   cluster_name       = "hotstar-eks"
-  kubernetes_version = "1.33"
+  kubernetes_version = "1.35"
 
   private_subnet_ids = module.vpc.private_subnet_ids
 
@@ -41,7 +41,7 @@ module "jenkins" {
 
   public_subnet_ids = module.vpc.public_subnet_ids
 
-  ami_id = "ami-050c78efa486a0196"
+  ami_id = "ami-0969bf654d39c7a02"
 
   key_name = "hotstar-key"
 
@@ -62,7 +62,7 @@ module "sonarqube" {
 
   public_subnet_id = module.vpc.public_subnet_ids[1]
 
-  ami_id = "ami-050c78efa486a0196"
+  ami_id = "ami-0c14b1acce9dc7578"
 
   key_name = "hotstar-key"
 
@@ -72,5 +72,16 @@ module "sonarqube" {
 
   depends_on = [
     module.vpc
+  ]
+}
+module "irsa" {
+  source = "./modules/irsa"
+
+  oidc_provider_arn = module.eks.oidc_provider_arn
+  oidc_issuer       = module.eks.oidc_issuer_url
+  node_group_arn    = module.eks.node_group_arn
+
+  depends_on = [
+    module.eks
   ]
 }

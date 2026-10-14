@@ -22,10 +22,6 @@ resource "aws_iam_role" "jenkins" {
   })
 }
 
-# Administrator access for Jenkins
-# Used for this project/lab to simplify Terraform,
-# ECR and EKS operations.
-
 resource "aws_iam_role_policy_attachment" "jenkins_admin" {
   role       = aws_iam_role.jenkins.name
   policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"

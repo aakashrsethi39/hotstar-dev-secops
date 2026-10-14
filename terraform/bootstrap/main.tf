@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "terraform_state" {
-  bucket = "hotstar-devsecops-terraform-state-2026"
+  bucket = "hotstar-devsecops-terraform-state-new-2026"
 }
 
 resource "aws_s3_bucket_versioning" "terraform_state" {
@@ -30,7 +30,7 @@ resource "aws_s3_bucket_public_access_block" "terraform_state" {
 }
 
 resource "aws_dynamodb_table" "terraform_lock" {
-  name         = "hotstar-devsecops-terraform-lock"
+  name         = "hotstar-devsecops-terraform-lock-new"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "LockID"
 
