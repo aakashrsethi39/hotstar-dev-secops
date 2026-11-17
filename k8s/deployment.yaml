@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: hotstar-clone
-  namespace: default
+  namespace: hotstar
 
 spec:
   replicas: 2
@@ -34,7 +34,7 @@ spec:
                     app: hotstar-clone
       containers:
         - name: hotstar-clone
-          image: 297681904929.dkr.ecr.ap-south-1.amazonaws.com/hotstar-clone:78d5f4e
+          image: 630702276489.dkr.ecr.ap-south-1.amazonaws.com/hotstar-clone:78d5f4e
 
           ports:
             - containerPort: 8080
