@@ -2,7 +2,7 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: hotstar-clone
-  namespace: default
+  namespace: hotstar
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
