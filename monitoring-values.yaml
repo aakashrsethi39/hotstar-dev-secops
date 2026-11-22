@@ -1,23 +1,36 @@
+defaultDashboardsEnabled: true
 
+alertmanager:
+  enabled: true
+  alertmanagerSpec:
+    replicas: 1
+    retention: 24h
+    resources:
+      requests:
+        cpu: 25m
+        memory: 64Mi
+      limits:
+        cpu: 200m
+        memory: 256Mi
 grafana:
+  admin:
+    existingSecret: monitoring-grafana
+    userKey: admin-user
+    passwordKey: admin-password
+
+  sidecar:
+    datasources:
+      alertmanager:
+        enabled: false
+
   grafana.ini:
     smtp:
-      enabled: true
+      enabled: false
       host: smtp.gmail.com:587
       user: aakashrsethi39@gmail.com
       from_address: aakashrsethi39@gmail.com
       from_name: Hotstar Grafana
       skip_verify: false
-
-  envValueFrom:
-    GF_SMTP_USER:
-      secretKeyRef:
-        name: grafana-smtp
-        key: user
-    GF_SMTP_PASSWORD:
-      secretKeyRef:
-        name: grafana-smtp
-        key: password
 
   resources:
     requests:
@@ -75,7 +88,7 @@ grafana:
                     to: 0
                   datasourceUid: prometheus
                   model:
-                    expr: sum(rate(container_cpu_usage_seconds_total{namespace="default",pod=~"hotstar-clone-.*",container!="POD",container!=""}[5m]))
+                    expr: sum(rate(container_cpu_usage_seconds_total{namespace="hotstar",pod=~"hotstar-clone-.*",container!="POD",container!=""}[5m]))
                     refId: A
 
                 - refId: B
@@ -128,7 +141,7 @@ grafana:
                     to: 0
                   datasourceUid: prometheus
                   model:
-                    expr: count(kube_pod_status_phase{namespace="default",pod=~"hotstar-clone-.*",phase="Running"})
+                    expr: count(kube_pod_status_phase{namespace="hotstar",pod=~"hotstar-clone-.*",phase="Running"})
                     refId: A
 
                 - refId: B
@@ -181,7 +194,7 @@ grafana:
                     to: 0
                   datasourceUid: prometheus
                   model:
-                    expr: kube_horizontalpodautoscaler_status_current_replicas{namespace="default",horizontalpodautoscaler="hotstar-clone"}
+                    expr: kube_horizontalpodautoscaler_status_current_replicas{namespace="hotstar",horizontalpodautoscaler="hotstar-clone"}
                     refId: A
 
                 - refId: B
@@ -220,6 +233,16 @@ grafana:
                           type: and
 prometheus:
   prometheusSpec:
+    replicas: 1
+    retention: 2d
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 768Mi
+
     affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:

@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: vpa-recommender-metrics
+  namespace: kube-system
+  labels:
+    app: vpa-recommender-metrics
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/component: recommender
+    app.kubernetes.io/instance: vpa
+    app.kubernetes.io/name: vertical-pod-autoscaler
+  ports:
+    - name: prometheus
+      port: 8942
+      targetPort: prometheus
+      protocol: TCP
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: vpa-recommender
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  namespaceSelector:
+    matchNames:
+      - kube-system
+  selector:
+    matchLabels:
+      app: vpa-recommender-metrics
+  endpoints:
+    - port: prometheus
+      path: /metrics
+      interval: 30s

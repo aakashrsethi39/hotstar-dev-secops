@@ -1,0 +1,37 @@
+cloudProvider: aws
+
+awsRegion: ap-south-1
+
+autoDiscovery:
+  clusterName: hotstar-eks
+
+replicaCount: 1
+
+rbac:
+  create: true
+  serviceAccount:
+    create: true
+    name: cluster-autoscaler
+    annotations:
+      eks.amazonaws.com/role-arn: arn:aws:iam::630702276489:role/hotstar-cluster-autoscaler-role
+
+extraArgs:
+  balance-similar-node-groups: "false"
+  skip-nodes-with-system-pods: "true"
+  scale-down-delay-after-add: "15m"
+  scale-down-unneeded-time: "15m"
+  scale-down-utilization-threshold: "0.5"
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 100Mi
+  limits:
+    cpu: 200m
+    memory: 300Mi
+
+serviceMonitor:
+  enabled: true
+  namespace: monitoring
+  selector:
+    release: monitoring
