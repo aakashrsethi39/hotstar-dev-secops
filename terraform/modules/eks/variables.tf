@@ -20,10 +20,16 @@ variable "node_role_arn" {
   type = string
 }
 
-variable "cluster_role_dependency" {
-  type = any
-}
+#variable "cluster_role_dependency" { [2 nat]
+#type = any
+#}
 
-variable "node_role_dependency" {
-  type = any
+#variable "node_role_dependency" {   [2 nat]
+#type = any
+#}
+
+
+variable "jenkins_role_arn" {
+  description = "IAM role ARN used by Jenkins to deploy applications"
+  type        = string
 }

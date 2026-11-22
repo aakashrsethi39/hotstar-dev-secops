@@ -20,3 +20,11 @@ jenkins_home/
 # OS
 .DS_Store
 Thumbs.db*.swp
+
+# Terraform plans
+*.tfplan
+tfplan
+
+# Backup and disabled configuration files
+*.bak
+*.tf.disabled

@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "terraform_state" {
-  bucket = "hotstar-devsecops-terraform-state-new-2026"
+  bucket = "hotstar-devsecops-tfstate-630702276489"
 }
 
 resource "aws_s3_bucket_versioning" "terraform_state" {

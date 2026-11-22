@@ -7,5 +7,5 @@ resource "aws_ecr_repository" "hotstar" {
 
   image_tag_mutability = "MUTABLE"
 
-  force_delete = true
+  force_delete = false
 }

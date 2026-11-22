@@ -22,8 +22,9 @@ resource "aws_vpc_security_group_ingress_rule" "ssh" {
 
 # Allow ALB to reach Jenkins
 resource "aws_vpc_security_group_ingress_rule" "jenkins_from_alb" {
+  count                        = var.create_alb ? 1 : 0
   security_group_id            = aws_security_group.jenkins.id
-  referenced_security_group_id = aws_security_group.jenkins_alb.id
+  referenced_security_group_id = aws_security_group.jenkins_alb[0].id
 
   from_port   = 8080
   to_port     = 8080
@@ -50,9 +51,8 @@ resource "aws_instance" "jenkins" {
   vpc_security_group_ids      = [aws_security_group.jenkins.id]
   iam_instance_profile        = var.instance_profile_name
   key_name                    = var.key_name
-  associate_public_ip_address = true
+  associate_public_ip_address = false
 
-  user_data = file("${path.module}/user-data.sh")
 
   root_block_device {
     volume_size = 30
@@ -67,6 +67,7 @@ resource "aws_instance" "jenkins" {
 
 # Security group for Jenkins ALB
 resource "aws_security_group" "jenkins_alb" {
+  count       = var.create_alb ? 1 : 0
   name        = "hotstar-jenkins-alb-sg"
   description = "Security group for Jenkins ALB"
   vpc_id      = var.vpc_id
@@ -94,12 +95,13 @@ resource "aws_security_group" "jenkins_alb" {
 
 # Jenkins Application Load Balancer
 resource "aws_lb" "jenkins" {
+  count              = var.create_alb ? 1 : 0
   name               = "hotstar-jenkins-alb"
   internal           = false
   load_balancer_type = "application"
 
   security_groups = [
-    aws_security_group.jenkins_alb.id
+    aws_security_group.jenkins_alb[0].id
   ]
 
   subnets = var.public_subnet_ids
@@ -112,6 +114,7 @@ resource "aws_lb" "jenkins" {
 
 # Jenkins target group
 resource "aws_lb_target_group" "jenkins" {
+  count       = var.create_alb ? 1 : 0
   name        = "hotstar-jenkins-tg"
   port        = 8080
   protocol    = "HTTP"
@@ -137,7 +140,8 @@ resource "aws_lb_target_group" "jenkins" {
 
 # Register Jenkins EC2 with target group
 resource "aws_lb_target_group_attachment" "jenkins" {
-  target_group_arn = aws_lb_target_group.jenkins.arn
+  count            = var.create_alb ? 1 : 0
+  target_group_arn = aws_lb_target_group.jenkins[0].arn
   target_id        = aws_instance.jenkins.id
   port             = 8080
 }
@@ -145,12 +149,13 @@ resource "aws_lb_target_group_attachment" "jenkins" {
 
 # Jenkins ALB listener
 resource "aws_lb_listener" "jenkins" {
-  load_balancer_arn = aws_lb.jenkins.arn
+  count             = var.create_alb ? 1 : 0
+  load_balancer_arn = aws_lb.jenkins[0].arn
   port              = 80
   protocol          = "HTTP"
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.jenkins.arn
+    target_group_arn = aws_lb_target_group.jenkins[0].arn
   }
 }

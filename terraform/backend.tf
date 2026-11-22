@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    bucket         = "hotstar-devsecops-terraform-state-new-2026"
+    bucket         = "hotstar-devsecops-tfstate-630702276489"
     key            = "production/terraform.tfstate"
     region         = "ap-south-1"
     encrypt        = true

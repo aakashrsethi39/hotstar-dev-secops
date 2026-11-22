@@ -52,9 +52,9 @@ resource "aws_instance" "sonarqube" {
   subnet_id                   = var.public_subnet_id
   vpc_security_group_ids      = [aws_security_group.sonarqube.id]
   key_name                    = var.key_name
-  associate_public_ip_address = true
+  associate_public_ip_address = false
 
-  user_data = file("${path.module}/user-data.sh")
+  #   user_data = file("${path.module}/user-data.sh")
 
   root_block_device {
     volume_size = 30

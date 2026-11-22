@@ -46,6 +46,7 @@ resource "aws_iam_policy" "cluster_autoscaler" {
 
     Statement = [
       {
+        Sid    = "AutoscalingReadOnly"
         Effect = "Allow"
 
         Action = [
@@ -58,12 +59,28 @@ resource "aws_iam_policy" "cluster_autoscaler" {
           "ec2:DescribeInstanceTypes",
           "ec2:DescribeLaunchTemplateVersions",
           "ec2:DescribeInstances",
-          "ec2:DescribeAvailabilityZones",
+          "ec2:DescribeAvailabilityZones"
+        ]
+
+        Resource = "*"
+      },
+      {
+        Sid    = "ScaleHotstarNodeGroupsOnly"
+        Effect = "Allow"
+
+        Action = [
           "autoscaling:SetDesiredCapacity",
           "autoscaling:TerminateInstanceInAutoScalingGroup"
         ]
 
         Resource = "*"
+
+        Condition = {
+          StringEquals = {
+            "aws:ResourceTag/k8s.io/cluster-autoscaler/enabled"     = "true"
+            "aws:ResourceTag/k8s.io/cluster-autoscaler/hotstar-eks" = "owned"
+          }
+        }
       }
     ]
   })

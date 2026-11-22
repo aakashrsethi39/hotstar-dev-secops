@@ -22,9 +22,28 @@ resource "aws_iam_role" "jenkins" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "jenkins_admin" {
+resource "aws_iam_role_policy_attachment" "jenkins_ecr" {
   role       = aws_iam_role.jenkins.name
-  policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser"
+}
+
+resource "aws_iam_role_policy" "jenkins_eks" {
+  name = "hotstar-jenkins-eks-access"
+  role = aws_iam_role.jenkins.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "eks:DescribeCluster"
+        ]
+        Resource = "arn:aws:eks:ap-south-1:630702276489:cluster/hotstar-eks"
+      }
+    ]
+  })
 }
 
 resource "aws_iam_instance_profile" "jenkins" {

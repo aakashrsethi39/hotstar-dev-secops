@@ -26,3 +26,9 @@ variable "public_subnet_ids" {
   description = "Public subnet IDs for Jenkins ALB"
   type        = list(string)
 }
+
+variable "create_alb" {
+  description = "Whether to create the Jenkins Application Load Balancer"
+  type        = bool
+  default     = false
+}

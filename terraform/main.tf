@@ -22,14 +22,14 @@ module "eks" {
 
   cluster_name       = "hotstar-eks"
   kubernetes_version = "1.35"
-
+  depends_on         = [module.iam]
   private_subnet_ids = module.vpc.private_subnet_ids
 
   cluster_role_arn = module.iam.eks_cluster_role_arn
   node_role_arn    = module.iam.eks_node_role_arn
-
-  cluster_role_dependency = module.iam.eks_cluster_role_arn
-  node_role_dependency    = module.iam.eks_node_role_arn
+  jenkins_role_arn = module.iam.jenkins_role_arn
+  #cluster_role_dependency = module.iam.eks_cluster_role_arn [2 nat]
+  #node_role_dependency    = module.iam.eks_node_role_arn [2 nat]
 }
 
 module "jenkins" {
@@ -41,13 +41,13 @@ module "jenkins" {
 
   public_subnet_ids = module.vpc.public_subnet_ids
 
-  ami_id = "ami-0969bf654d39c7a02"
+  ami_id = "ami-0d1649d90b05ccd6c"
 
   key_name = "hotstar-key"
 
   instance_profile_name = module.iam.jenkins_instance_profile_name
 
-  ssh_allowed_cidr = "43.243.80.167/32"
+  ssh_allowed_cidr = "43.243.80.161/32"
 
   depends_on = [
     module.vpc,
@@ -62,11 +62,11 @@ module "sonarqube" {
 
   public_subnet_id = module.vpc.public_subnet_ids[1]
 
-  ami_id = "ami-0c14b1acce9dc7578"
+  ami_id = "ami-0cc53601d0a1c435c"
 
   key_name = "hotstar-key"
 
-  ssh_allowed_cidr = "43.243.80.167/32"
+  ssh_allowed_cidr = "43.243.80.161/32"
 
   jenkins_security_group_id = module.jenkins.jenkins_security_group_id
 
