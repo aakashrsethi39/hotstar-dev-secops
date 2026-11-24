@@ -19,6 +19,12 @@ resource "aws_vpc_security_group_ingress_rule" "ssh" {
   ip_protocol = "tcp"
 
   description = "SSH"
+
+  lifecycle {
+    ignore_changes = [
+      cidr_ipv4
+    ]
+  }
 }
 
 
@@ -63,6 +69,14 @@ resource "aws_instance" "sonarqube" {
 
   tags = {
     Name = "hotstar-sonarqube"
+  }
+
+  lifecycle {
+    prevent_destroy = true
+
+    ignore_changes = [
+      associate_public_ip_address
+    ]
   }
 }
 

@@ -62,3 +62,10 @@ output "sonarqube_instance_id" {
 output "sonarqube_public_ip" {
   value = module.sonarqube.sonarqube_public_ip
 }
+output "jenkins_agent_instance_id" {
+  value = module.jenkins_agent.instance_id
+}
+
+output "jenkins_agent_private_ip" {
+  value = module.jenkins_agent.private_ip
+}

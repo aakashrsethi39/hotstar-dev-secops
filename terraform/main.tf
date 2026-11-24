@@ -85,3 +85,33 @@ module "irsa" {
     module.eks
   ]
 }
+
+module "jenkins_agent" {
+  source = "./modules/jenkins-agent"
+
+  vpc_id                    = module.vpc.vpc_id
+  private_subnet_id         = module.vpc.private_subnet_ids[0]
+  ami_id                    = "ami-032eca770b5d15e72"
+  key_name                  = "hotstar-key"
+  instance_profile_name     = module.iam.jenkins_instance_profile_name
+  jenkins_security_group_id = module.jenkins.jenkins_security_group_id
+
+  instance_type = "t3.medium"
+  volume_size   = 30
+
+  depends_on = [
+    module.vpc,
+    module.iam
+  ]
+}
+
+resource "aws_vpc_security_group_ingress_rule" "agent_to_sonarqube" {
+  security_group_id            = module.sonarqube.sonarqube_security_group_id
+  referenced_security_group_id = module.jenkins_agent.security_group_id
+
+  from_port   = 9000
+  to_port     = 9000
+  ip_protocol = "tcp"
+
+  description = "Allow Jenkins agent to access SonarQube"
+}

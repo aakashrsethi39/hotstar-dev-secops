@@ -18,6 +18,12 @@ resource "aws_vpc_security_group_ingress_rule" "ssh" {
   ip_protocol = "tcp"
 
   description = "SSH"
+
+  lifecycle {
+    ignore_changes = [
+      cidr_ipv4
+    ]
+  }
 }
 
 # Allow ALB to reach Jenkins
@@ -61,6 +67,14 @@ resource "aws_instance" "jenkins" {
 
   tags = {
     Name = "hotstar-jenkins"
+  }
+
+  lifecycle {
+    prevent_destroy = true
+
+    ignore_changes = [
+      associate_public_ip_address
+    ]
   }
 }
 

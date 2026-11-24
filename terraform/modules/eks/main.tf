@@ -16,6 +16,12 @@ resource "aws_eks_cluster" "main" {
     public_access_cidrs     = ["43.243.80.161/32"]
   }
 
+  lifecycle {
+    ignore_changes = [
+      vpc_config[0].public_access_cidrs
+    ]
+  }
+
   #depends_on = [
   #var.cluster_role_dependency
   #]
@@ -37,7 +43,7 @@ resource "aws_eks_node_group" "main" {
 
   scaling_config {
     desired_size = 3
-    min_size     = 2
+    min_size     = 3
     max_size     = 3
   }
 
