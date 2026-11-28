@@ -6,6 +6,7 @@ variable "oidc_issuer" {
   type = string
 }
 
-variable "node_group_arn" {
-  type = string
+variable "node_group_arns" {
+  description = "ARNs of EKS managed node groups"
+  type        = list(string)
 }

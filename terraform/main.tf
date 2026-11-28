@@ -79,7 +79,7 @@ module "irsa" {
 
   oidc_provider_arn = module.eks.oidc_provider_arn
   oidc_issuer       = module.eks.oidc_issuer_url
-  node_group_arn    = module.eks.node_group_arn
+  node_group_arns   = module.eks.node_group_arns
 
   depends_on = [
     module.eks

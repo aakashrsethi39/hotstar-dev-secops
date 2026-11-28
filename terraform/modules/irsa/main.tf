@@ -139,7 +139,7 @@ resource "aws_iam_role_policy" "cluster_autoscaler_eks_describe" {
           "eks:DescribeNodegroup"
         ]
 
-        Resource = var.node_group_arn
+        Resource = var.node_group_arns
       }
     ]
   })

@@ -25,6 +25,12 @@ output "oidc_provider_arn" {
   value = aws_iam_openid_connect_provider.eks.arn
 }
 
-output "node_group_arn" {
-  value = aws_eks_node_group.main.arn
+output "node_group_arns" {
+  description = "ARNs of all EKS managed node groups"
+
+  value = [
+    aws_eks_node_group.main.arn,
+    aws_eks_node_group.ondemand.arn,
+    aws_eks_node_group.spot.arn
+  ]
 }
