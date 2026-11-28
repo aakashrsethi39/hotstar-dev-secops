@@ -33,7 +33,8 @@ module "eks" {
 }
 
 module "jenkins" {
-  source = "./modules/jenkins"
+  create_alb = true
+  source     = "./modules/jenkins"
 
   vpc_id = module.vpc.vpc_id
 

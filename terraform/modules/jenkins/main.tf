@@ -87,11 +87,20 @@ resource "aws_security_group" "jenkins_alb" {
   vpc_id      = var.vpc_id
 
   ingress {
-    description = "Jenkins HTTP"
+    description = "GitHub webhook HTTP access"
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+
+    cidr_blocks = [
+      "9.234.106.48/28",
+      "9.234.98.160/28",
+      "9.234.98.176/28",
+      "192.30.252.0/22",
+      "185.199.108.0/22",
+      "140.82.112.0/20",
+      "143.55.64.0/20"
+    ]
   }
 
   egress {
@@ -169,7 +178,35 @@ resource "aws_lb_listener" "jenkins" {
   protocol          = "HTTP"
 
   default_action {
+    type = "fixed-response"
+
+    fixed_response {
+      content_type = "text/plain"
+      message_body = "Access Denied"
+      status_code  = "403"
+    }
+  }
+}
+
+resource "aws_lb_listener_rule" "github_webhook" {
+  count        = var.create_alb ? 1 : 0
+  listener_arn = aws_lb_listener.jenkins[0].arn
+  priority     = 100
+
+  action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.jenkins[0].arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["/github-webhook/"]
+    }
+  }
+
+  condition {
+    http_request_method {
+      values = ["POST"]
+    }
   }
 }
