@@ -5,6 +5,19 @@ alertmanager:
   alertmanagerSpec:
     replicas: 1
     retention: 24h
+    nodeSelector:
+      eks.amazonaws.com/capacityType: ON_DEMAND
+
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: gp3
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 2Gi
+
     resources:
       requests:
         cpu: 25m
@@ -12,11 +25,24 @@ alertmanager:
       limits:
         cpu: 200m
         memory: 256Mi
+
 grafana:
+  nodeSelector:
+    eks.amazonaws.com/capacityType: ON_DEMAND
   admin:
     existingSecret: monitoring-grafana
     userKey: admin-user
     passwordKey: admin-password
+  persistence:
+    enabled: true
+    type: pvc
+    storageClassName: gp3
+    accessModes:
+      - ReadWriteOnce
+    size: 5Gi
+
+  deploymentStrategy:
+    type: Recreate
 
   sidecar:
     datasources:
@@ -233,8 +259,22 @@ grafana:
                           type: and
 prometheus:
   prometheusSpec:
+    nodeSelector:
+      eks.amazonaws.com/capacityType: ON_DEMAND
     replicas: 1
-    retention: 2d
+    retention: 30d
+    retentionSize: 8GB
+
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: gp3
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 10Gi
+
     resources:
       requests:
         cpu: 100m
