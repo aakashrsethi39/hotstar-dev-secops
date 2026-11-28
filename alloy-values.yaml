@@ -1,0 +1,84 @@
+controller:
+  type: deployment
+  replicas: 1
+
+  nodeSelector:
+    eks.amazonaws.com/capacityType: ON_DEMAND
+
+rbac:
+  create: true
+  namespaces:
+    - hotstar
+
+  rules:
+    - apiGroups: [""]
+      resources: ["pods"]
+      verbs: ["get", "list", "watch"]
+
+    - apiGroups: [""]
+      resources: ["pods/log"]
+      verbs: ["get"]
+
+  clusterRules: []
+
+serviceAccount:
+  create: true
+  automountServiceAccountToken: true
+
+service:
+  type: ClusterIP
+
+alloy:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+  configMap:
+    create: true
+    content: |-
+      discovery.kubernetes "hotstar_pods" {
+        role = "pod"
+
+        namespaces {
+          names = ["hotstar"]
+        }
+      }
+
+      discovery.relabel "hotstar_logs" {
+        targets = discovery.kubernetes.hotstar_pods.targets
+
+        rule {
+          source_labels = ["__meta_kubernetes_namespace"]
+          target_label = "namespace"
+        }
+
+        rule {
+          source_labels = ["__meta_kubernetes_pod_name"]
+          target_label = "pod"
+        }
+
+        rule {
+          source_labels = ["__meta_kubernetes_pod_container_name"]
+          target_label = "container"
+        }
+
+        rule {
+          target_label = "job"
+          replacement = "hotstar"
+        }
+      }
+
+      loki.source.kubernetes "hotstar_logs" {
+        targets = discovery.relabel.hotstar_logs.output
+        forward_to = [loki.write.default.receiver]
+      }
+
+      loki.write "default" {
+        endpoint {
+          url = "http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push"
+        }
+      }
