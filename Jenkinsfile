@@ -1,9 +1,24 @@
 pipeline {
     agent any
 
+    options {
+        disableConcurrentBuilds()
+        skipDefaultCheckout(true)
+        timestamps()
+        timeout(time: 30, unit: 'MINUTES')
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+    }
+
+    environment {
+        TF_IN_AUTOMATION = 'true'
+        TF_INPUT = 'false'
+        AWS_DEFAULT_REGION = 'ap-south-1'
+    }
+
     stages {
         stage('Checkout') {
             steps {
+                deleteDir()
                 checkout scm
             }
         }
@@ -11,7 +26,7 @@ pipeline {
         stage('Terraform Init') {
             steps {
                 dir('terraform') {
-                    sh 'terraform init'
+                    sh 'terraform init -input=false'
                 }
             }
         }
@@ -35,16 +50,23 @@ pipeline {
         stage('Terraform Plan') {
             steps {
                 dir('terraform') {
-                    sh 'terraform plan -out=tfplan'
+                    sh 'terraform plan -input=false -no-color'
                 }
             }
         }
-        // stage('Terraform Apply') {
-            // steps {
-                // dir('terraform') {
-                    // sh 'terraform apply -auto-approve tfplan'
-                // }
-            // }   
-        // }
+    }
+
+    post {
+        success {
+            echo 'Terraform validation and planning successful.'
+        }
+
+        failure {
+            echo 'Terraform pipeline failed. Review console output.'
+        }
+
+        always {
+            deleteDir()
+        }
     }
 }
